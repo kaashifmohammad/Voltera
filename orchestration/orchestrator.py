@@ -4,6 +4,13 @@ from .orchestration_input import OrchestrationInput
 from .orchestration_result import OrchestrationResult
 from .orchestration_state import OrchestrationState
 
+from .exceptions import (
+    InputValidationError,
+    NotificationError,
+    RecommendationError,
+    UnifiedDecisionError,
+)
+
 from .unified_decision import UnifiedDecisionCoordinator
 from .recommendation.recommendation_orchestrator import (
     RecommendationOrchestrator,
@@ -29,8 +36,8 @@ class Orchestrator:
                 ↓
         OrchestrationResult
 
-    The orchestrator coordinates existing intelligence layers.
-    It does not replace their internal responsibilities.
+    The orchestrator coordinates existing intelligence layers
+    and provides a controlled failure boundary.
     """
 
     def __init__(
@@ -39,12 +46,6 @@ class Orchestrator:
         recommendation_orchestrator=None,
         notification_orchestrator=None,
     ) -> None:
-        """
-        Initialize the central orchestration pipeline.
-
-        Dependencies may be injected for deterministic testing.
-        """
-
         self.state = OrchestrationState.IDLE
 
         self.unified_decision_coordinator = (
@@ -71,27 +72,20 @@ class Orchestrator:
     ) -> OrchestrationResult:
         """
         Execute one complete VOLTERA orchestration cycle.
+
+        Every cycle has a controlled failure boundary.
+
+        Invalid input or module failures are converted into
+        structured OrchestrationResult objects rather than
+        escaping to the caller.
         """
 
         self.state = OrchestrationState.RUNNING
 
         try:
-            # -----------------------------------------------------
-            # 1. Validate orchestration input
-            # -----------------------------------------------------
-
-            if not isinstance(
-                orchestration_input,
-                OrchestrationInput,
-            ):
-                raise TypeError(
-                    "orchestration_input must be an "
-                    "OrchestrationInput instance."
-                )
-
-            # -----------------------------------------------------
-            # 2. Extract intelligence inputs
-            # -----------------------------------------------------
+            self._validate_input(
+                orchestration_input
+            )
 
             intelligence = orchestration_input.intelligence
 
@@ -111,30 +105,22 @@ class Orchestrator:
                 intelligence.adaptive
             )
 
-            # -----------------------------------------------------
-            # 3. Build Context + Prediction input
-            # -----------------------------------------------------
-
-            context_prediction = self._build_context_prediction(
-                context,
-                prediction,
+            context_prediction = (
+                self._build_context_prediction(
+                    context,
+                    prediction,
+                )
             )
 
-            # -----------------------------------------------------
-            # 4. Build Learning + Adaptive input
-            # -----------------------------------------------------
-
-            learning_adaptive = self._build_learning_adaptive(
-                learning,
-                adaptive,
+            learning_adaptive = (
+                self._build_learning_adaptive(
+                    learning,
+                    adaptive,
+                )
             )
-
-            # -----------------------------------------------------
-            # 5. Unified Decision
-            # -----------------------------------------------------
 
             unified_result = (
-                self.unified_decision_coordinator.coordinate(
+                self._run_unified_decision(
                     context_prediction,
                     learning_adaptive,
                 )
@@ -142,23 +128,17 @@ class Orchestrator:
 
             decision_data = unified_result.to_dict()
 
-            # -----------------------------------------------------
-            # 6. Battery context for recommendation engine
-            # -----------------------------------------------------
-
-            battery_context = self._build_battery_context(
-                context,
-                prediction,
+            battery_context = (
+                self._build_battery_context(
+                    context,
+                    prediction,
+                )
             )
 
-            # -----------------------------------------------------
-            # 7. Recommendation orchestration
-            # -----------------------------------------------------
-
             recommendation_result = (
-                self.recommendation_orchestrator.orchestrate(
+                self._run_recommendation(
                     unified_result,
-                    battery_context=battery_context,
+                    battery_context,
                 )
             )
 
@@ -166,12 +146,8 @@ class Orchestrator:
                 recommendation_result.to_dict()
             )
 
-            # -----------------------------------------------------
-            # 8. Notification orchestration
-            # -----------------------------------------------------
-
             notification_result = (
-                self.notification_orchestrator.orchestrate(
+                self._run_notification(
                     recommendation_result.recommendation
                 )
             )
@@ -179,10 +155,6 @@ class Orchestrator:
             notification_data = (
                 notification_result.to_dict()
             )
-
-            # -----------------------------------------------------
-            # 9. Completed
-            # -----------------------------------------------------
 
             self.state = OrchestrationState.COMPLETED
 
@@ -206,25 +178,116 @@ class Orchestrator:
             )
 
     @staticmethod
+    def _validate_input(
+        orchestration_input: OrchestrationInput,
+    ) -> None:
+        if not isinstance(
+            orchestration_input,
+            OrchestrationInput,
+        ):
+            raise InputValidationError(
+                "orchestration_input must be an "
+                "OrchestrationInput instance.",
+                stage="input_validation",
+            )
+
+        if orchestration_input.intelligence is None:
+            raise InputValidationError(
+                "intelligence input cannot be None.",
+                stage="input_validation",
+            )
+
+    def _run_unified_decision(
+        self,
+        context_prediction: Dict[str, Any],
+        learning_adaptive: Dict[str, Any],
+    ):
+        try:
+            return (
+                self.unified_decision_coordinator.coordinate(
+                    context_prediction,
+                    learning_adaptive,
+                )
+            )
+
+        except Exception as exc:
+            if isinstance(
+                exc,
+                UnifiedDecisionError,
+            ):
+                raise
+
+            message = str(exc).strip() or (
+                "Unified decision failure"
+            )
+            raise UnifiedDecisionError(
+                message,
+                cause=exc,
+            ) from exc
+
+    def _run_recommendation(
+        self,
+        unified_result,
+        battery_context: Dict[str, Any],
+    ):
+        try:
+            return (
+                self.recommendation_orchestrator.orchestrate(
+                    unified_result,
+                    battery_context=battery_context,
+                )
+            )
+
+        except Exception as exc:
+            if isinstance(
+                exc,
+                RecommendationError,
+            ):
+                raise
+
+            message = str(exc).strip() or (
+                "Recommendation failure"
+            )
+            raise RecommendationError(
+                message,
+                cause=exc,
+            ) from exc
+
+    def _run_notification(
+        self,
+        recommendation,
+    ):
+        try:
+            return (
+                self.notification_orchestrator.orchestrate(
+                    recommendation
+                )
+            )
+
+        except Exception as exc:
+            if isinstance(
+                exc,
+                NotificationError,
+            ):
+                raise
+
+            message = str(exc).strip() or (
+                "Notification failure"
+            )
+            raise NotificationError(
+                message,
+                cause=exc,
+            ) from exc
+
+    @staticmethod
     def _build_context_prediction(
         context: Dict[str, Any],
         prediction: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """
-        Combine Context and Prediction intelligence.
-
-        Existing Context + Prediction decision information is
-        preserved whenever available.
-        """
-
         data: Dict[str, Any] = {}
 
         data.update(context)
         data.update(prediction)
-
-        # ---------------------------------------------------------
-        # Preserve explicit combined risk.
-        # ---------------------------------------------------------
 
         if "combined_risk" not in data:
             risk = prediction.get(
@@ -239,10 +302,6 @@ class Orchestrator:
             if risk is not None:
                 data["combined_risk"] = risk
 
-        # ---------------------------------------------------------
-        # Preserve explicit user relevance.
-        # ---------------------------------------------------------
-
         if "user_relevance" not in data:
             relevance = context.get(
                 "relevance"
@@ -250,10 +309,6 @@ class Orchestrator:
 
             if relevance is not None:
                 data["user_relevance"] = relevance
-
-        # ---------------------------------------------------------
-        # Combine signals.
-        # ---------------------------------------------------------
 
         signals = []
 
@@ -293,18 +348,10 @@ class Orchestrator:
         learning: Dict[str, Any],
         adaptive: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """
-        Combine Learning and Adaptive intelligence.
-        """
-
         data: Dict[str, Any] = {}
 
         data.update(learning)
         data.update(adaptive)
-
-        # ---------------------------------------------------------
-        # Preserve adaptive strength.
-        # ---------------------------------------------------------
 
         if "adaptation_strength" not in data:
             strength = adaptive.get(
@@ -319,10 +366,6 @@ class Orchestrator:
             if strength is not None:
                 data["adaptation_strength"] = strength
 
-        # ---------------------------------------------------------
-        # Preserve alignment.
-        # ---------------------------------------------------------
-
         if "user_alignment" not in data:
             alignment = learning.get(
                 "user_alignment"
@@ -335,10 +378,6 @@ class Orchestrator:
 
             if alignment is not None:
                 data["user_alignment"] = alignment
-
-        # ---------------------------------------------------------
-        # Combine signals.
-        # ---------------------------------------------------------
 
         signals = []
 
@@ -378,33 +417,9 @@ class Orchestrator:
         context: Dict[str, Any],
         prediction: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """
-        Build the battery context expected by the existing
-        Recommendation Engine.
-
-        The orchestration layer normalizes known battery field
-        aliases without modifying downstream contracts.
-        """
-
         battery_context: Dict[str, Any] = {}
 
-        # ---------------------------------------------------------
-        # Copy context values first.
-        # ---------------------------------------------------------
-
         battery_context.update(context)
-
-        # ---------------------------------------------------------
-        # Normalize battery percentage.
-        #
-        # Existing VOLTERA components may expose:
-        #
-        #     battery_percentage
-        #     battery_percent
-        #     battery
-        #
-        # The notification layer expects battery_percentage.
-        # ---------------------------------------------------------
 
         battery_percentage = context.get(
             "battery_percentage"
@@ -425,16 +440,21 @@ class Orchestrator:
                 "battery_percentage"
             ] = battery_percentage
 
-        # Normalize the complete recommendation-engine contract.
         if "charging" not in battery_context:
             battery_context["charging"] = bool(
                 context.get(
                     "charging_status",
-                    context.get("is_charging", False),
+                    context.get(
+                        "is_charging",
+                        False,
+                    ),
                 )
             )
 
-        for key in ("cpu_usage", "ram_usage"):
+        for key in (
+            "cpu_usage",
+            "ram_usage",
+        ):
             if key not in battery_context:
                 battery_context[key] = 0
 
@@ -443,26 +463,34 @@ class Orchestrator:
                 "predicted_battery",
                 prediction.get(
                     "predicted_battery_percentage",
-                    battery_context.get("battery_percentage"),
+                    battery_context.get(
+                        "battery_percentage"
+                    ),
                 ),
             )
-            battery_context["predicted_battery"] = predicted_battery
+
+            battery_context[
+                "predicted_battery"
+            ] = predicted_battery
 
         if "prediction_horizon_minutes" not in battery_context:
-            battery_context["prediction_horizon_minutes"] = prediction.get(
+            battery_context[
+                "prediction_horizon_minutes"
+            ] = prediction.get(
                 "prediction_horizon_minutes",
                 0,
             )
 
         if "expected_change" not in battery_context:
-            battery_context["expected_change"] = prediction.get(
+            battery_context[
+                "expected_change"
+            ] = prediction.get(
                 "expected_change",
-                prediction.get("battery_delta", 0),
+                prediction.get(
+                    "battery_delta",
+                    0,
+                ),
             )
-
-        # ---------------------------------------------------------
-        # Preserve prediction information.
-        # ---------------------------------------------------------
 
         for key in (
             "risk_level",
@@ -474,7 +502,9 @@ class Orchestrator:
                 key in prediction
                 and key not in battery_context
             ):
-                battery_context[key] = prediction[key]
+                battery_context[key] = (
+                    prediction[key]
+                )
 
         return battery_context
 
@@ -482,12 +512,10 @@ class Orchestrator:
         """
         Reset the orchestrator to its initial state.
         """
-
         self.state = OrchestrationState.IDLE
 
     def get_state(self) -> OrchestrationState:
         """
         Return the current orchestration state.
         """
-
         return self.state
