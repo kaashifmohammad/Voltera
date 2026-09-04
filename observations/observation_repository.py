@@ -4,8 +4,9 @@ from pathlib import Path
 
 from observations.observation import Observation
 from observations.observation_validator import ObservationValidator
+from observations.historical_intelligence import HistoricalIntelligence
 
-class ObservationRepository:
+class ObservationRepository(HistoricalIntelligence):
     """Provides access to persisted historical observations."""
 
     def __init__(self, file_path="data/observations.csv"):
