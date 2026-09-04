@@ -2,9 +2,7 @@ from observations.collection_service import CollectionService
 
 import time
 
-
 collection_service = CollectionService()
-
 
 while True:
 

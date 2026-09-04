@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from observations.observation import Observation
-
+from observations.observation_validator import ObservationValidator
 
 class ObservationRepository:
     """Provides access to persisted historical observations."""
@@ -40,7 +40,8 @@ class ObservationRepository:
                         active_application=row["active_application"] or None,
                     )
 
-                    observations.append(observation)
+                    if ObservationValidator.is_valid(observation):
+                        observations.append(observation)
 
                 except (KeyError, TypeError, ValueError):
                     continue
@@ -65,3 +66,44 @@ class ObservationRepository:
             return False
 
         return None
+
+    def get_latest(self):
+        """Return the most recent observation, or None if empty."""
+
+        observations = self.get_all()
+
+        if not observations:
+            return None
+
+        return max(observations, key=lambda observation: observation.timestamp)
+
+    def get_recent(self, count=10):
+        """Return the most recent observations."""
+
+        if count <= 0:
+            return []
+
+        observations = self.get_all()
+
+        observations.sort(
+            key=lambda observation: observation.timestamp,
+            reverse=True,
+        )
+
+        return observations[:count]
+
+    def get_between(self, start, end):
+        """Return observations within a time range."""
+
+        observations = self.get_all()
+
+        return [
+            observation
+            for observation in observations
+            if start <= observation.timestamp <= end
+        ]
+
+    def count(self):
+        """Return the number of valid stored observations."""
+
+        return len(self.get_all())
