@@ -276,3 +276,4 @@ def test_end_to_end_historical_access(tmp_path):
     assert latest.active_application == "TestApp"
     assert access.count() == 1
 
+print("All tests passed successfully.")
