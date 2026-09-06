@@ -23,3 +23,9 @@ class HistoricalDataAccess:
 
     def count(self) -> int:
         return self.service.get_count()
+    def window(
+    self,
+    start: datetime,
+    end: datetime,
+) -> list[Observation]:
+        return self.service.get_between(start, end)

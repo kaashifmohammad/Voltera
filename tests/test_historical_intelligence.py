@@ -1,3 +1,5 @@
+from tracemalloc import start
+
 import pytest
 from datetime import datetime, timedelta
 from observations.observation_repository import ObservationRepository
@@ -204,7 +206,12 @@ def test_access_returns_count():
     )
     access = HistoricalDataAccess(service)
 
+    start = datetime.now() - timedelta(days=1)
+    end = datetime.now()
+
     assert access.count() == service.get_count()
+
+    assert access.window(start, end) == service.get_between(start, end)
 
 class FakeHistoricalDataService:
     def __init__(self):
@@ -276,4 +283,13 @@ def test_end_to_end_historical_access(tmp_path):
     assert latest.active_application == "TestApp"
     assert access.count() == 1
 
-print("All tests passed successfully.")
+def test_access_returns_historical_window():
+    repository = ObservationRepository()
+    adapter = HistoricalIntelligenceAdapter(repository)
+    service = HistoricalDataService(adapter)
+    access = HistoricalDataAccess(service)
+
+    start = datetime.now() - timedelta(days=1)
+    end = datetime.now()
+
+    assert access.window(start, end) == access.between(start, end)
