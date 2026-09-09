@@ -1,3 +1,10 @@
+"""
+Historical statistics for VOLTERA.
+
+Provides statistical summaries over persisted battery observations
+through the HistoricalDataAccess boundary.
+"""
+
 from dataclasses import dataclass
 from typing import Optional
 
