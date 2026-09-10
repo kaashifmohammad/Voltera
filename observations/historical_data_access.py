@@ -5,6 +5,12 @@ from observations.observation import Observation
 
 
 class HistoricalDataAccess:
+    """
+    Public access boundary for VOLTERA historical observations.
+
+    Keeps higher-level intelligence independent from the underlying
+    repository, adapter, and service implementations.
+    """
     def __init__(self, service: HistoricalDataService):
         self.service = service
 
