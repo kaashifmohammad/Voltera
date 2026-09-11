@@ -1,10 +1,9 @@
 """
-Historical statistics for VOLTERA.
+Historical statistical intelligence for VOLTERA observations.
 
-Provides statistical summaries over persisted battery observations
-through the HistoricalDataAccess boundary.
+Provides aggregate battery, CPU, RAM, and charging statistics
+from persisted historical observations.
 """
-
 from dataclasses import dataclass
 from typing import Optional
 
