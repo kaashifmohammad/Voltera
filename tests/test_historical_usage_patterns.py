@@ -1,14 +1,9 @@
 from datetime import datetime, timedelta
-
 import pytest
-
-from observations.battery_discharge import DischargeSession
 from observations.historical_usage_patterns import (
     HistoricalUsagePatternResult,
     HistoricalUsagePatterns,
 )
-from tests.test_context_classifier import result
-
 
 class FakeAccess:
     def __init__(self, observations):

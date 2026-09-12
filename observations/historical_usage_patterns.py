@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-
-from observations.battery_discharge import BatteryDischarge, DischargeSession
-
+from observations.battery_discharge import BatteryDischarge
 
 @dataclass(frozen=True)
 class HistoricalUsagePatternResult:
