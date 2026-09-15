@@ -240,4 +240,3 @@ def test_result_is_immutable():
 
     with pytest.raises(AttributeError):
         result.morning = TimeOfDayStats(1, 5.0, 5.0)
-print("heloo")
