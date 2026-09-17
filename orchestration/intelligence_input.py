@@ -16,6 +16,7 @@ class IntelligenceInput:
     learning: Dict[str, Any] = field(default_factory=dict)
     prediction: Dict[str, Any] = field(default_factory=dict)
     adaptive: Dict[str, Any] = field(default_factory=dict)
+    historical: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Dict[str, Any]]:
         """
@@ -26,6 +27,7 @@ class IntelligenceInput:
             "learning": self.learning,
             "prediction": self.prediction,
             "adaptive": self.adaptive,
+            "historical": self.historical,
         }
 
     def is_empty(self) -> bool:
@@ -38,5 +40,6 @@ class IntelligenceInput:
                 self.learning,
                 self.prediction,
                 self.adaptive,
+                self.historical,
             ]
         )
