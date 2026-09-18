@@ -36,3 +36,7 @@ class OrchestrationInput:
     @property
     def adaptive(self) -> Dict[str, Any]:
         return self.intelligence.adaptive
+
+    @property
+    def historical(self) -> Dict[str, Any]:
+        return self.intelligence.historical
