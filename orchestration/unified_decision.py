@@ -9,13 +9,16 @@ class UnifiedDecisionResult:
 
     - Context + Prediction Intelligence
     - Learning + Adaptive Intelligence
+    - Historical Intelligence
 
-    This layer does not generate recommendations or notifications.
-    It produces the unified decision that those later layers consume.
+    Historical intelligence is preserved as supporting evidence.
+    It does not independently change risk, priority, or decision
+    policy at this stage.
     """
 
     context_prediction: Dict[str, Any]
     learning_adaptive: Dict[str, Any]
+    historical: Dict[str, Any] = field(default_factory=dict)
 
     risk_level: str = "Unknown"
     priority: str = "Unknown"
@@ -35,6 +38,7 @@ class UnifiedDecisionResult:
         return {
             "context_prediction": dict(self.context_prediction),
             "learning_adaptive": dict(self.learning_adaptive),
+            "historical": dict(self.historical),
             "risk_level": self.risk_level,
             "priority": self.priority,
             "confidence": self.confidence,
@@ -47,20 +51,25 @@ class UnifiedDecisionResult:
 
 class UnifiedDecisionCoordinator:
     """
-    Coordinates the outputs of the Context/Prediction Intelligence
-    and Learning/Adaptive Intelligence components into one final
-    intelligence decision.
+    Coordinates the outputs of the Context/Prediction Intelligence,
+    Learning/Adaptive Intelligence, and Historical Intelligence
+    components into one final intelligence decision.
 
     Responsibilities:
 
     - Combine context/prediction risk
     - Incorporate learning/adaptive intelligence
+    - Preserve historical intelligence
     - Evaluate user relevance
     - Evaluate adaptive strength
     - Determine confidence
     - Determine final priority
     - Produce one unified decision
     - Preserve supporting signals
+
+    Historical intelligence is supporting evidence only at this
+    integration stage. Decision-policy changes are handled by
+    later historical decision-signal phases.
 
     This component does not generate recommendations or notifications.
     """
@@ -108,12 +117,17 @@ class UnifiedDecisionCoordinator:
         self,
         context_prediction: Any,
         learning_adaptive: Any,
+        historical: Any = None,
     ) -> UnifiedDecisionResult:
         """
-        Combine ContextPredictionResult and LearningAdaptiveResult.
+        Combine Context/Prediction, Learning/Adaptive, and
+        Historical Intelligence.
 
-        Both inputs may be dictionaries or objects exposing
-        a to_dict() method.
+        Context/Prediction and Learning/Adaptive inputs remain
+        required for backward compatibility.
+
+        Historical intelligence is optional and is preserved
+        as supporting evidence.
         """
 
         context_prediction_data = self._normalize_input(
@@ -124,6 +138,11 @@ class UnifiedDecisionCoordinator:
         learning_adaptive_data = self._normalize_input(
             learning_adaptive,
             "learning_adaptive",
+        )
+
+        historical_data = self._normalize_optional_input(
+            historical,
+            "historical",
         )
 
         risk_level = self._determine_risk(
@@ -167,6 +186,7 @@ class UnifiedDecisionCoordinator:
         signals = self._build_signals(
             context_prediction_data,
             learning_adaptive_data,
+            historical_data,
             risk_level,
             priority,
             confidence,
@@ -178,6 +198,7 @@ class UnifiedDecisionCoordinator:
         return UnifiedDecisionResult(
             context_prediction=context_prediction_data,
             learning_adaptive=learning_adaptive_data,
+            historical=historical_data,
             risk_level=risk_level,
             priority=priority,
             confidence=confidence,
@@ -193,7 +214,7 @@ class UnifiedDecisionCoordinator:
         name: str,
     ) -> Dict[str, Any]:
         """
-        Normalize supported orchestration outputs into dictionaries.
+        Normalize required orchestration outputs into dictionaries.
         """
 
         if value is None:
@@ -216,6 +237,26 @@ class UnifiedDecisionCoordinator:
 
         raise TypeError(
             f"{name} must be a dictionary or provide to_dict()."
+        )
+
+    def _normalize_optional_input(
+        self,
+        value: Any,
+        name: str,
+    ) -> Dict[str, Any]:
+        """
+        Normalize optional orchestration inputs.
+
+        None represents an absent historical intelligence payload
+        and therefore becomes an empty dictionary.
+        """
+
+        if value is None:
+            return {}
+
+        return self._normalize_input(
+            value,
+            name,
         )
 
     def _determine_risk(
@@ -280,10 +321,6 @@ class UnifiedDecisionCoordinator:
         situation Critical.
         """
 
-        # ---------------------------------------------------------
-        # 1. Explicit context relevance has highest priority.
-        # ---------------------------------------------------------
-
         relevance = self._extract_nested_value(
             context_prediction,
             "user_relevance",
@@ -303,10 +340,6 @@ class UnifiedDecisionCoordinator:
             if normalized in self.RELEVANCE_LEVELS:
                 return normalized
 
-        # ---------------------------------------------------------
-        # 2. Explicit learning relevance.
-        # ---------------------------------------------------------
-
         learning_relevance = self._extract_nested_value(
             learning_adaptive,
             "user_relevance",
@@ -325,10 +358,6 @@ class UnifiedDecisionCoordinator:
 
             if normalized in self.RELEVANCE_LEVELS:
                 return normalized
-
-        # ---------------------------------------------------------
-        # 3. Infer relevance from learning alignment.
-        # ---------------------------------------------------------
 
         alignment = str(
             learning_adaptive.get(
@@ -387,10 +416,6 @@ class UnifiedDecisionCoordinator:
         ):
             return "Unknown"
 
-        # ---------------------------------------------------------
-        # Explicit confidence always takes precedence.
-        # ---------------------------------------------------------
-
         explicit_confidence = (
             context_prediction.get("confidence")
         )
@@ -408,20 +433,12 @@ class UnifiedDecisionCoordinator:
             if normalized in self.CONFIDENCE_LEVELS:
                 return normalized
 
-        # ---------------------------------------------------------
-        # Strong agreement between risk and adaptation.
-        # ---------------------------------------------------------
-
         if (
             risk_level != "Unknown"
             and adaptation_strength
             in {"High", "Very High"}
         ):
             return "High"
-
-        # ---------------------------------------------------------
-        # Both intelligence sources are available.
-        # ---------------------------------------------------------
 
         if (
             risk_level != "Unknown"
@@ -491,42 +508,43 @@ class UnifiedDecisionCoordinator:
         return "Unknown"
 
     def _determine_decision(
-            self,
-            priority: str,
-            risk_level: str,
-            user_relevance: str,
-        ) -> str:
-            """
-            Produce the single final intelligence decision.
+        self,
+        priority: str,
+        risk_level: str,
+        user_relevance: str,
+    ) -> str:
+        """
+        Produce the single final intelligence decision.
 
-            Recommendation generation happens in the next orchestration
-            layer.
-            """
+        Recommendation generation happens in the next orchestration
+        layer.
+        """
 
-            if priority == "Critical":
-                return "Act Immediately"
+        if priority == "Critical":
+            return "Act Immediately"
 
-            if priority == "High":
-                return "Act"
+        if priority == "High":
+            return "Act"
 
-            if priority == "Medium":
-                return "Consider Action"
+        if priority == "Medium":
+            return "Consider Action"
 
-            if (
-                priority == "Low"
-                and user_relevance == "Low"
-            ):
-                return "Monitor"
-
-            if risk_level == "Low":
-                return "Monitor"
-
+        if (
+            priority == "Low"
+            and user_relevance == "Low"
+        ):
             return "Monitor"
+
+        if risk_level == "Low":
+            return "Monitor"
+
+        return "Monitor"
 
     def _build_signals(
         self,
         context_prediction: Dict[str, Any],
         learning_adaptive: Dict[str, Any],
+        historical: Dict[str, Any],
         risk_level: str,
         priority: str,
         confidence: str,
@@ -558,6 +576,11 @@ class UnifiedDecisionCoordinator:
             signals.extend(
                 str(signal)
                 for signal in learning_signals
+            )
+
+        if historical:
+            signals.append(
+                "Historical intelligence available"
             )
 
         signals.append(

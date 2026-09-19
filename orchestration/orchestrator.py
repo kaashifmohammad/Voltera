@@ -123,6 +123,7 @@ class Orchestrator:
                 self._run_unified_decision(
                     context_prediction,
                     learning_adaptive,
+                    intelligence.historical,
                 )
             )
 
@@ -201,8 +202,18 @@ class Orchestrator:
         self,
         context_prediction: Dict[str, Any],
         learning_adaptive: Dict[str, Any],
+        historical: Dict[str, Any],
     ):
         try:
+            if historical:
+                return (
+                    self.unified_decision_coordinator.coordinate(
+                        context_prediction,
+                        learning_adaptive,
+                        historical,
+                    )
+                )
+
             return (
                 self.unified_decision_coordinator.coordinate(
                     context_prediction,
@@ -234,7 +245,7 @@ class Orchestrator:
             return (
                 self.recommendation_orchestrator.orchestrate(
                     unified_result,
-                    battery_context=battery_context,
+                    battery_context,
                 )
             )
 
