@@ -554,6 +554,10 @@ class UnifiedDecisionCoordinator:
     ) -> list[str]:
         """
         Build an auditable list of signals supporting the decision.
+
+        Historical intelligence contributes descriptive decision
+        signals only. It does not directly modify risk, priority,
+        confidence, or the final decision at this stage.
         """
 
         signals: list[str] = []
@@ -578,10 +582,11 @@ class UnifiedDecisionCoordinator:
                 for signal in learning_signals
             )
 
-        if historical:
-            signals.append(
-                "Historical intelligence available"
-            )
+        historical_signals = self._build_historical_signals(
+            historical
+        )
+
+        signals.extend(historical_signals)
 
         signals.append(
             f"Unified risk: {risk_level}"
@@ -606,6 +611,160 @@ class UnifiedDecisionCoordinator:
         signals.append(
             f"Unified decision: {decision}"
         )
+
+        return signals
+
+    @staticmethod
+    def _build_historical_signals(
+        historical: Dict[str, Any],
+    ) -> list[str]:
+        """
+        Convert historical intelligence into descriptive,
+        auditable decision signals.
+
+        These signals provide historical evidence without
+        changing the existing decision policy.
+        """
+
+        if not historical:
+            return []
+
+        signals: list[str] = [
+            "Historical intelligence available"
+        ]
+
+        observation_count = historical.get(
+            "observation_count"
+        )
+
+        if observation_count is not None:
+            signals.append(
+                f"Historical observations available: "
+                f"{observation_count}"
+            )
+
+        average_battery = historical.get(
+            "average_battery"
+        )
+
+        if average_battery is not None:
+            signals.append(
+                f"Historical average battery: "
+                f"{float(average_battery):.1f}%"
+            )
+
+        battery_trend = historical.get(
+            "battery_trend"
+        )
+
+        if battery_trend:
+            trend = str(
+                battery_trend
+            ).strip()
+
+            if "." in trend:
+                trend = trend.rsplit(
+                    ".",
+                    1,
+                )[-1]
+
+            trend = trend.replace(
+                "_",
+                " ",
+            ).lower()
+
+            if trend == "declining":
+                signals.append(
+                    "Historical battery trend is declining"
+                )
+            elif trend == "rising":
+                signals.append(
+                    "Historical battery trend is rising"
+                )
+            elif trend == "stable":
+                signals.append(
+                    "Historical battery trend is stable"
+                )
+            elif trend == "insufficient data":
+                signals.append(
+                    "Historical battery trend has insufficient data"
+                )
+
+        average_drain_rate = historical.get(
+            "average_drain_rate"
+        )
+
+        if average_drain_rate is not None:
+            signals.append(
+                f"Historical average drain rate: "
+                f"{float(average_drain_rate):.2f}%/hour"
+            )
+
+        heavy_usage_count = historical.get(
+            "heavy_usage_session_count"
+        )
+
+        if heavy_usage_count is not None:
+            try:
+                heavy_usage_count = int(
+                    heavy_usage_count
+                )
+            except (TypeError, ValueError):
+                heavy_usage_count = None
+
+            if heavy_usage_count is not None:
+                if heavy_usage_count > 0:
+                    signals.append(
+                        f"Historical heavy usage detected: "
+                        f"{heavy_usage_count} session(s)"
+                    )
+                else:
+                    signals.append(
+                        "No historical heavy usage sessions detected"
+                    )
+
+        strongest_period = historical.get(
+            "strongest_usage_period"
+        )
+
+        if strongest_period:
+            period = str(
+                strongest_period
+            ).strip()
+
+            if "." in period:
+                period = period.rsplit(
+                    ".",
+                    1,
+                )[-1]
+
+            period = period.replace(
+                "_",
+                " ",
+            ).title()
+
+            signals.append(
+                f"Historical strongest usage period: "
+                f"{period}"
+            )
+
+        application_patterns = historical.get(
+            "application_patterns"
+        )
+
+        if application_patterns:
+            try:
+                pattern_count = len(
+                    application_patterns
+                )
+            except TypeError:
+                pattern_count = 0
+
+            if pattern_count:
+                signals.append(
+                    f"Historical application battery patterns: "
+                    f"{pattern_count}"
+                )
 
         return signals
 
