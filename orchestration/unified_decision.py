@@ -880,5 +880,3 @@ class UnifiedDecisionCoordinator:
             isinstance(relevance, str)
             and relevance.strip().lower() == "high"
         )
-
-print("UnifiedDecisionCoordinator module loaded successfully.")
