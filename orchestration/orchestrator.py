@@ -530,3 +530,6 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
+
+
+    print("Orchestrator initialized. Current state:", self.state)
