@@ -531,5 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-
-print("Orchestrator.")
+print("ok")
