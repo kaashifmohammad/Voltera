@@ -531,4 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-print("hey there!, this is the orchestrator module, which coordinates the VOLTERA intelligence pipeline.")
+print("this is voltera orchestrator")
