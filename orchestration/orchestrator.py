@@ -531,4 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-print("this is voltera orchestrator")
+print("this is voltera, the ai program that orchestrates intelligence for battery management and optimization.")
