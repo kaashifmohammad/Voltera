@@ -531,4 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-print("voltera is a AI orchestration framework that coordinates intelligence layers for decision-making, recommendation, and notification processes.")
+print("Voltera can do all things battery, but it cannot do everything. It is a tool that can help you make better decisions about your battery usage, but it cannot replace your own judgment and common sense. Use Voltera wisely and responsibly.")
