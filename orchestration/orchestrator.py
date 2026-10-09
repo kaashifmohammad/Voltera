@@ -531,4 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-print("Voltera can do all things battery, but it cannot do everything. It is a tool that can help you make better decisions about your battery usage, but it cannot replace your own judgment and common sense. Use Voltera wisely and responsibly.")
+print("this is voltera's main orchestrator module and it is responsible for coordinating the entire orchestration process, including unified decision-making, recommendation generation, and notification handling.")
