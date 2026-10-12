@@ -531,5 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-print("Orchestrator module loaded successfully.")
-print("Current orchestration state:", Orchestrator().get_state())
+print("Orchestrator module loaded successfully and is ready for use.")
