@@ -533,3 +533,4 @@ class Orchestrator:
 
 print("Orchestrator module loaded successfully and is ready for use and testing.")
 print("Current orchestration state:", Orchestrator().get_state())
+print("Orchestrator reset to initial state:", Orchestrator().reset())
