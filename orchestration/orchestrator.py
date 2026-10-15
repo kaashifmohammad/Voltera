@@ -531,5 +531,4 @@ class Orchestrator:
         """
         return self.state
 
-print("Orchestrator module loaded successfully and is ready for use and testing.")
 print("Orchestrator reset to initial state:", Orchestrator().reset())
