@@ -530,6 +530,3 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-
-print("Orchestrator module loaded successfully.")
-print("Current orchestration state:", Orchestrator().get_state())
