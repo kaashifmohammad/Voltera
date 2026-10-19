@@ -47,6 +47,7 @@ class Orchestrator:
         notification_orchestrator=None,
     ) -> None:
         self.state = OrchestrationState.IDLE
+        print("Orchestrator initialized. Current state:", self.state)
 
         self.unified_decision_coordinator = (
             unified_decision_coordinator
@@ -530,3 +531,5 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
+
+print("Orchestrator state:", self.state)
