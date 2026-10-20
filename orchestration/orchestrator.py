@@ -532,4 +532,7 @@ class Orchestrator:
         """
         return self.state
 
-print("Orchestrator state")
+print((
+    "Orchestrator module loaded. "
+    "Current state: IDLE"
+))
