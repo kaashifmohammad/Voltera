@@ -532,4 +532,4 @@ class Orchestrator:
         """
         return self.state
 
-print("the Orchestrator module has been loaded successfully.")
+print({"Orchestrator module loaded successfully."})
