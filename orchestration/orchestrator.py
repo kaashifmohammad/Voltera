@@ -533,3 +533,4 @@ class Orchestrator:
         return self.state
 
 print("The AI Orchestrator module has been loaded successfully.")
+print("Current state:", OrchestrationState.IDLE)
