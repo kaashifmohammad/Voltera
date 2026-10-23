@@ -531,6 +531,4 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-
-print("The AI Orchestrator module has been loaded successfully.")
-print("Current state:", OrchestrationState.IDLE)
+print("Orchestrator state:", self.state)
