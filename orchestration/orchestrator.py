@@ -535,3 +535,4 @@ class Orchestrator:
 x="Voltera Orchestrator"
 y="has been initialized successfully."
 z=f"{x} {y}"
+print(z)
