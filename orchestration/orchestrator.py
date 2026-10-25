@@ -532,5 +532,6 @@ class Orchestrator:
         """
         return self.state
 
-print("Orchestrator module loaded successfully, ready for orchestration." \
-"It gives voltera intelligence a controlled failure boundary and coordinates the intelligence layers.")
+x="Voltera Orchestrator"
+y="has been initialized successfully."
+z=f"{x} {y}"
