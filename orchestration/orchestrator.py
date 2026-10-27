@@ -537,3 +537,4 @@ y="has been initialized successfully."
 z=f"{x} {y}"
 print(z)
 print("Voltera Orchestrator has been initialized successfully.")
+print("Initialized.")
