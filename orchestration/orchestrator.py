@@ -536,5 +536,4 @@ x="Voltera Orchestrator"
 y="has been initialized successfully."
 z=f"{x} {y}"
 print(z)
-print("Current state:", self.state)
-print("Unified Decision Coordinator:", self.unified_decision_coordinator)
+print("Voltera Orchestrator has been initialized successfully.")
