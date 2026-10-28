@@ -534,3 +534,4 @@ class Orchestrator:
 
 print("Orchestrator module loaded successfully.")
 print("Current orchestration state:", OrchestrationState.IDLE)
+print("Available states:", list(OrchestrationState))
