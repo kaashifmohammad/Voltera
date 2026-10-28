@@ -532,9 +532,4 @@ class Orchestrator:
         """
         return self.state
 
-x="Voltera Orchestrator"
-y="has been initialized successfully."
-z=f"{x} {y}"
-print(z)
-print("Voltera Orchestrator has been initialized successfully.")
-print("Initialized.")
+print("Orchestrator module loaded successfully.")
