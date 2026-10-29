@@ -533,3 +533,4 @@ class Orchestrator:
         return self.state
 
 print("Orchestrator is ready to orchestrate intelligence.")
+print("Current state:", OrchestrationState.IDLE)
