@@ -534,3 +534,4 @@ class Orchestrator:
 
 print("Orchestrator is ready to orchestrate intelligence.")
 print("Current state:", OrchestrationState.IDLE)
+print("this will used trained data for perception and prediction of battery and user behavior")
