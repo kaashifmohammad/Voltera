@@ -535,3 +535,4 @@ class Orchestrator:
 print("Orchestrator state:", self.state)
 print("Unified Decision Coordinator:", self.unified_decision_coordinator)
 print("Recommendation Orchestrator:", self.recommendation_orchestrator)
+print("Notification Orchestrator:", self.notification_orchestrator)
