@@ -532,5 +532,4 @@ class Orchestrator:
         """
         return self.state
 
-print("Orchestrator state:", self.state)
-print("Notification Orchestrator:", self.notification_orchestrator)
+print("This project runs on Analysis Engine version 1.0.0")
