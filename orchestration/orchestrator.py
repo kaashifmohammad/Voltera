@@ -532,5 +532,5 @@ class Orchestrator:
         """
         return self.state
 
-print("For any issues, refer to the Orchestrator documentation or contact support.")
 print("Orchestrator is ready to process orchestration cycles.")
+print("Current state:", Orchestrator().get_state())
