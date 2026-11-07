@@ -534,3 +534,4 @@ class Orchestrator:
 
 print("Orchestrator is ready to process orchestration cycles.")
 print("Current state:", Orchestrator().get_state())
+print("Orchestrator initialized successfully.")
