@@ -531,5 +531,3 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-
-print("Current state:", Orchestrator().get_state())
