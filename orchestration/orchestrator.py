@@ -533,4 +533,3 @@ class Orchestrator:
         return self.state
 
 print("Current state:", Orchestrator().get_state())
-print("Orchestrator initialized successfully.")
