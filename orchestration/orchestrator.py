@@ -533,3 +533,4 @@ class Orchestrator:
         return self.state
 
 print("Unified Decision Coordinator:", self.unified_decision_coordinator)
+print("Recommendation Orchestrator:", self.recommendation_orchestrator)
