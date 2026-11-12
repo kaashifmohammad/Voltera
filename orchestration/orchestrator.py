@@ -531,5 +531,3 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-
-print("Notification Orchestrator:", self.notification_orchestrator)
