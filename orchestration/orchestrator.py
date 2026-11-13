@@ -533,5 +533,4 @@ class Orchestrator:
         return self.state
 
 print("Orchestrator state:", self.state)
-print("Unified Decision Coordinator:", self.unified_decision_coordinator)
 print("Notification Orchestrator:", self.notification_orchestrator)
