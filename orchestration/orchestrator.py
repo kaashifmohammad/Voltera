@@ -532,7 +532,5 @@ class Orchestrator:
         """
         return self.state
 
-print("Orchestrator state:", 
-      self.state)
 print("Recommendation Orchestrator:", 
       self.recommendation_orchestrator) 
