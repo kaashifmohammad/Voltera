@@ -531,6 +531,3 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-
-print("Recommendation Orchestrator:", 
-      self.recommendation_orchestrator) 
