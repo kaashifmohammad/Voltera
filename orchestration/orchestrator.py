@@ -531,3 +531,5 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
+
+print("This is an orchestrator module for VOLTERA intelligence. It coordinates the unified decision, recommendation, and notification processes.")
