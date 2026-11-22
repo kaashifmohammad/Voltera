@@ -532,4 +532,4 @@ class Orchestrator:
         """
         return self.state
 
-print("This is an orchestrator module for VOLTERA intelligence. It coordinates the unified decision, recommendation, and notification processes.")
+print("This is an orchestrator module for VOLTERA intelligence.")
