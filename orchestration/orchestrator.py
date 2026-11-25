@@ -531,5 +531,4 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-
-print("The Voltera")
+    
