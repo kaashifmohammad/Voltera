@@ -531,4 +531,8 @@ class Orchestrator:
         Return the current orchestration state.
         """
         return self.state
-    
+
+x=5
+y=10
+z=15
+print(x + y + z)
