@@ -533,5 +533,4 @@ class Orchestrator:
         return self.state
 
 x=5
-y=15
-print(x + y)
+print(x)
