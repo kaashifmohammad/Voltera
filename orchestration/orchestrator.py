@@ -534,5 +534,4 @@ class Orchestrator:
 
 x=5
 y=15
-z=15
 print(x + y + z)
