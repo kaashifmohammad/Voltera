@@ -242,9 +242,9 @@ VOLTERA/
 
 <p align="center">
 
-<img height="180em" src="https://github-readme-stats.vercel.app/api?username=kaashif087&show_icons=true&theme=tokyonight"/>
+<img height="180em" src="https://github-readme-stats.vercel.app/api?username=kaashifmohammad&show_icons=true&theme=tokyonight"/>
 
-<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=kaashif087&layout=compact&theme=tokyonight"/>
+<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=kaashifmohammad&layout=compact&theme=tokyonight"/>
 
 </p>
 
@@ -252,7 +252,7 @@ VOLTERA/
 
 <p align="center">
 
-<img src="https://streak-stats.demolab.com?user=kaashif087&theme=tokyonight"/>
+<img src="https://streak-stats.demolab.com?user=kaashifmohammad&theme=tokyonight"/>
 
 </p>
 
@@ -261,7 +261,7 @@ VOLTERA/
 ## Clone Repository
 
 ```bash
-git clone https://github.com/kaashif087/Voltera.git
+git clone https://github.com/kaashifmohammad/Voltera.git
 
 cd Voltera
 ```
@@ -739,7 +739,7 @@ Passionate about:
 
 ### Connect with Me
 
-- **GitHub:** https://github.com/kaashif087
+- **GitHub:** https://github.com/kaashifmohammad
 - **LinkedIn:** https://www.linkedin.com/in/kaashif-mohammad-b26697385
 
 > *"Building intelligent software that learns, predicts, and adapts."*
